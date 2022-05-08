@@ -6,6 +6,8 @@ import com.uninpahu.ratings.ratings.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +19,7 @@ public class ControllerStudentImpl implements IControllerStudent {
     @Autowired
     StudentServiceImpl service;
     
-    ScoreServiceImpl scoreService = new ScoreServiceImpl();
+    IScoreService scoreService = new ScoreServiceImpl();
 
     @GetMapping("/list")
     @Override
@@ -25,6 +27,17 @@ public class ControllerStudentImpl implements IControllerStudent {
         List<Student> list = service.listAll();
 
         return new ResponseEntity<List<Student>>(list, HttpStatus.OK);
+    }
+
+    @GetMapping("/list/{id}")
+    @Override
+    public ResponseEntity<Optional<Student>> fetchUser(@PathVariable int id) {
+        if(!service.existById(id)) {
+            return new ResponseEntity(new Message("El usuario no existe."), HttpStatus.NOT_FOUND);
+        }
+        Optional<Student> student = service.getOne(id);
+
+        return new ResponseEntity<Optional<Student>>(student, HttpStatus.OK);
     }
 
     @PostMapping("/create")
@@ -35,7 +48,7 @@ public class ControllerStudentImpl implements IControllerStudent {
         } else if (StringUtils.isBlank(studentRequest.getLastname())) {
             return new ResponseEntity(new Message("El apellido es obligatorio"), HttpStatus.BAD_REQUEST);
         } else if (studentRequest.getCode() <= 0) {
-            return new ResponseEntity(new Message("El código es obligatorio"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(new Message("Código no válido"), HttpStatus.BAD_REQUEST);
         } else if (studentRequest.getScore1() <= 0 || studentRequest.getScore1() >= 5) {
             return new ResponseEntity(new Message("La nota del primer corte debe ser mayor a 0 y menor a 5"), HttpStatus.BAD_REQUEST);
         } else if (studentRequest.getScore2() <= 0 || studentRequest.getScore1() >= 5) {
@@ -51,7 +64,7 @@ public class ControllerStudentImpl implements IControllerStudent {
 
     @PutMapping("/update/{id}")
     @Override
-    public ResponseEntity<?> update(@PathVariable int id, StudentRequest studentRequest) {
+    public ResponseEntity<Message> update(@PathVariable int id, @RequestBody StudentRequest studentRequest) {
         if (!service.existById(id)) {
             return new ResponseEntity(new Message("El usuario no existe."), HttpStatus.NOT_FOUND);
         }
@@ -61,7 +74,7 @@ public class ControllerStudentImpl implements IControllerStudent {
         } else if (StringUtils.isBlank(studentRequest.getLastname())) {
             return new ResponseEntity(new Message("El apellido es obligatorio"), HttpStatus.BAD_REQUEST);
         } else if (studentRequest.getCode() <= 0) {
-            return new ResponseEntity(new Message("El código es obligatorio"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(new Message("Código no válido"), HttpStatus.BAD_REQUEST);
         } else if (studentRequest.getScore1() <= 0 || studentRequest.getScore1() >= 5) {
             return new ResponseEntity(new Message("La nota del primer corte debe ser mayor a 0 y menor a 5"), HttpStatus.BAD_REQUEST);
         } else if (studentRequest.getScore2() <= 0 || studentRequest.getScore1() >= 5) {

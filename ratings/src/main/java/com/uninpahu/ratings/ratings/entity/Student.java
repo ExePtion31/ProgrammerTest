@@ -7,13 +7,21 @@ public class Student {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="Student_Id")
     private int id;
+    @Column(name="Student_Name")
     private String name;
+    @Column(name="Student_Lastname")
     private String lastname;
+    @Column(name="Student_Code")
     private int code;
+    @Column(name="Score_1")
     private double score1;
+    @Column(name="Score_2")
     private double score2;
+    @Column(name="Score_3")
     private double score3;
+    @Column(name="Final_Score")
     private double finalScore;
 
     public Student() {
